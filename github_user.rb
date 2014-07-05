@@ -1,11 +1,16 @@
-require 'net/http'
+require 'net/https'
 require 'json'
 
 module Github
   class User
-    API_URL = "https://api.github.com"
+    API_URL = "api.github.com"
     @@users = {}
     attr_accessor :name
+
+    def initialize
+      @http = Net::HTTP.new(API_URL, '443')
+      @http.use_ssl = true
+    end
 
     def self.all_users
       @@users.keys
@@ -44,7 +49,8 @@ module Github
     private
 
     def github_request(path)
-      JSON.parse(Net::HTTP.get(URI.parse("#{API_URL}#{path}")))
+      request = Net::HTTP::Get.new(path)
+      JSON.parse(@http.request(request).body)
     end
   end
 end
